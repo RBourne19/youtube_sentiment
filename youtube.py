@@ -8,7 +8,7 @@ api_key = os.getenv('API_KEY')
 def video_comments(video_id):
     count = 0
     # empty list for storing reply
-    resposne = {'negative': 0, 'positive': 0}
+    response = {'negative': 0, 'positive': 0, 'neutral': 0, 'total': 0}
  
     # creating youtube resource object
     youtube = build('youtube', 'v3',
@@ -32,9 +32,11 @@ def video_comments(video_id):
             negative = SentimentIntensityAnalyzer().polarity_scores(comment)['neg']
             positive = SentimentIntensityAnalyzer().polarity_scores(comment)['pos']
             if(negative > positive):
-                resposne.update({'negative': resposne.get('negative') + 1})
+                response.update({'negative': response.get('negative') + 1})
             elif negative != positive:
-                resposne.update({'positive': resposne.get('positive') + 1})
+                response.update({'positive': response.get('positive') + 1})
+            else:
+                response.update({'neutral': response.get('neutral') + 1})
             # counting number of reply of comment
             replycount = item['snippet']['totalReplyCount']
             count += 1    
@@ -48,9 +50,11 @@ def video_comments(video_id):
                 ).execute()
         else:
             break
-    return resposne
+
+    response.update({'total' : count})
+    return response
 # Enter video id
-video_id = "fJ4JfezknHk"
+video_id = "B-tL7220WYc"
  
 # Call function
 print(video_comments(video_id))
